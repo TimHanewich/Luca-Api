@@ -20,7 +20,7 @@ namespace LucaApi
     public class LucaApi
     {
         [FunctionName("GetFinancials")]
-        public static async Task<FinancialStatement> GetFinancialsAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequest req)
+        public static async Task<string> GetFinancialsAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequest req)
         {
 
             string symbol = req.Query["symbol"];
@@ -49,12 +49,12 @@ namespace LucaApi
                 }
                 else
                 {
-                    throw new Exception("Critical request error: value '" + filing + "' was not understood.  Options are '10k' or '10q'.");
+                    return "Fatal request error: value '" + filing + "' was not understood.  Options are '10k' or '10q'.";
                 }
             }
             else
             {
-                throw new Exception("Critical request error: parameter 'filing' was blank but is a required parameter.");
+                return "Fatal request error: parameter 'filing' was blank but is a required parameter.";
             }
             
 
@@ -72,7 +72,7 @@ namespace LucaApi
                 }
                 catch
                 {
-                    throw new Exception("Critical request error: unable to parse 'before' parameter of value '" + before + "' to DateTime format.");
+                    return "Fatal request error: unable to parse 'before' parameter of value '" + before + "' to DateTime format.";
                 }
             }
 
@@ -91,7 +91,7 @@ namespace LucaApi
                 }
                 else
                 {
-                    throw new Exception("Critical request error: value '" + forcecalculation + "' was not recognized as a valid value for parameter 'forcecalculation'.  Value should either be 'true' or 'false'.");
+                    return "Critical request error: value '" + forcecalculation + "' was not recognized as a valid value for parameter 'forcecalculation'.  Value should either be 'true' or 'false'.";
                 }
             }
 
@@ -103,18 +103,19 @@ namespace LucaApi
             }
             catch
             {
-                throw new Exception("Internal error: unable to establish connection to Luca storage.");
+                return "Internal error: unable to establish connection to Luca storage.";
             }
             
             //Get the Financial Statement
             try
             {
                 FinancialStatement fs = await lm.DownloadFinancialStatementAsync(symbol, FilingRequest, BeforeRequest, ForceCalculationRequest);
-                return fs;
+                string asJson = JsonConvert.SerializeObject(fs);
+                return asJson;
             }
             catch (Exception e)
             {
-                throw new Exception("Critical error while downloading financial statement.  Internal error message: " + e.Message);
+                return "Fatal error while downloading financial statement.  Internal error message: " + e.Message;
             }
             
             
@@ -126,14 +127,13 @@ namespace LucaApi
             return LucaManager.Version.ToString();
         }
 
-        // //Had to comment this out because the NuGet package Luca v2 hasn't published yet. Will add it back in later.
-        // [FunctionName("GetLastUpdateDateTime")]
-        // public static async Task<DateTime> GetLastUpdateDateTimeAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequest req)
-        // {
-        //     LucaManager lm = LucaManager.Create();
-        //     DateTime update = await lm.DownloadLatestVersionPublishedDateTimeAsync();
-        //     return update;
-        // }
+        [FunctionName("GetLastUpdateDateTime")]
+        public static async Task<DateTime> GetLastUpdateDateTimeAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequest req)
+        {
+            LucaManager lm = LucaManager.Create();
+            DateTime update = await lm.DownloadLatestVersionPublishedDateTimeAsync();
+            return update;
+        }
     }
 
     
