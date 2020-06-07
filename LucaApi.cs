@@ -140,7 +140,6 @@ namespace LucaApi
                 StringContent sc = new StringContent("Fatal error while downloading financial statement.  Internal error message: " + e.Message, System.Text.Encoding.UTF8);
                 ToReturn.Content = sc;
                 return ToReturn;
-                return ;
             }
             
             
