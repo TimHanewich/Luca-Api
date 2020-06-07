@@ -6,7 +6,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Luca" Version="2.1.0" />
-    <PackageReference Include="Microsoft.Azure.Storage.Blob" Version="11.1.5" />
+    <PackageReference Include="Microsoft.Azure.Storage.Blob" Version="11.1.7" />
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="3.0.3" />
   </ItemGroup>
   <ItemGroup>
