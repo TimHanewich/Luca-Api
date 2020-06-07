@@ -13,6 +13,8 @@ using Microsoft.Azure.Storage.Blob;
 using SecuritiesExchangeCommission.Edgar;
 using Xbrl.FinancialStatement;
 using Xbrl;
+using System.Net;
+using System.Net.Http;
 
 
 namespace LucaApi
@@ -20,7 +22,7 @@ namespace LucaApi
     public class LucaApi
     {
         [FunctionName("GetFinancials")]
-        public static async Task<string> GetFinancialsAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequest req)
+        public static async Task<HttpResponseMessage> GetFinancialsAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequest req)
         {
 
             string symbol = req.Query["symbol"];
@@ -49,12 +51,18 @@ namespace LucaApi
                 }
                 else
                 {
-                    return "Fatal request error: value '" + filing + "' was not understood.  Options are '10k' or '10q'.";
+                    HttpResponseMessage ToReturn = new HttpResponseMessage(HttpStatusCode.BadRequest);
+                    StringContent sc = new StringContent("Fatal request error: value '" + filing + "' was not understood.  Options are '10k' or '10q'.", System.Text.Encoding.UTF8);
+                    ToReturn.Content = sc;
+                    return ToReturn;
                 }
             }
             else
             {
-                return "Fatal request error: parameter 'filing' was blank but is a required parameter.";
+                HttpResponseMessage ToReturn = new HttpResponseMessage(HttpStatusCode.BadRequest);
+                StringContent sc = new StringContent("Fatal request error: parameter 'filing' was blank but is a required parameter.", System.Text.Encoding.UTF8);
+                ToReturn.Content = sc;
+                return ToReturn;
             }
             
 
@@ -72,7 +80,10 @@ namespace LucaApi
                 }
                 catch
                 {
-                    return "Fatal request error: unable to parse 'before' parameter of value '" + before + "' to DateTime format.";
+                    HttpResponseMessage ToReturn = new HttpResponseMessage(HttpStatusCode.BadRequest);
+                    StringContent sc = new StringContent("Fatal request error: unable to parse 'before' parameter of value '" + before + "' to DateTime format.", System.Text.Encoding.UTF8);
+                    ToReturn.Content = sc;
+                    return ToReturn;
                 }
             }
 
@@ -91,7 +102,10 @@ namespace LucaApi
                 }
                 else
                 {
-                    return "Critical request error: value '" + forcecalculation + "' was not recognized as a valid value for parameter 'forcecalculation'.  Value should either be 'true' or 'false'.";
+                    HttpResponseMessage ToReturn = new HttpResponseMessage(HttpStatusCode.BadRequest);
+                    StringContent sc = new StringContent("Critical request error: value '" + forcecalculation + "' was not recognized as a valid value for parameter 'forcecalculation'.  Value should either be 'true' or 'false'.", System.Text.Encoding.UTF8);
+                    ToReturn.Content = sc;
+                    return ToReturn;
                 }
             }
 
@@ -103,7 +117,10 @@ namespace LucaApi
             }
             catch
             {
-                return "Internal error: unable to establish connection to Luca storage.";
+                HttpResponseMessage ToReturn = new HttpResponseMessage(HttpStatusCode.InternalServerError);
+                StringContent sc = new StringContent("Internal error: unable to establish connection to Luca storage.", System.Text.Encoding.UTF8);
+                ToReturn.Content = sc;
+                return ToReturn;
             }
             
             //Get the Financial Statement
@@ -111,11 +128,19 @@ namespace LucaApi
             {
                 FinancialStatement fs = await lm.DownloadFinancialStatementAsync(symbol, FilingRequest, BeforeRequest, ForceCalculationRequest);
                 string asJson = JsonConvert.SerializeObject(fs);
-                return asJson;
+                
+                HttpResponseMessage hrm = new HttpResponseMessage(HttpStatusCode.OK);
+                StringContent sc = new StringContent(asJson, System.Text.Encoding.UTF8, "application/json");
+                hrm.Content = sc;
+                return hrm;
             }
             catch (Exception e)
             {
-                return "Fatal error while downloading financial statement.  Internal error message: " + e.Message;
+                HttpResponseMessage ToReturn = new HttpResponseMessage(HttpStatusCode.InternalServerError);
+                StringContent sc = new StringContent("Fatal error while downloading financial statement.  Internal error message: " + e.Message, System.Text.Encoding.UTF8);
+                ToReturn.Content = sc;
+                return ToReturn;
+                return ;
             }
             
             
