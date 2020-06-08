@@ -22,18 +22,27 @@ namespace LucaApi
     public class LucaApi
     {
         [FunctionName("GetFinancials")]
-        public static async Task<HttpResponseMessage> GetFinancialsAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequest req)
+        public static async Task<HttpResponseMessage> GetFinancialsAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequest req, ILogger log)
         {
 
             string symbol = req.Query["symbol"];
             string filing = req.Query["filing"];
             string before = req.Query["before"];
             string forcecalculation = req.Query["forcecalculation"];
+            
+            //Report
+            log.LogInformation("Symbol: " + symbol);
+            log.LogInformation("Filing: " + filing);
+            log.LogInformation("Before: " + before);
+            log.LogInformation("Force Calculation: " + forcecalculation);
 
             //Symbol
             if (symbol == null)
             {
-                throw new Exception("Critical request error: symbol was blank.");
+                HttpResponseMessage ToReturn = new HttpResponseMessage(HttpStatusCode.BadRequest);
+                StringContent sc = new StringContent("Critical request error: symbol was blank.", System.Text.Encoding.UTF8);
+                ToReturn.Content = sc;
+                return ToReturn;
             }
             symbol = symbol.Trim().ToLower();
 
@@ -77,6 +86,7 @@ namespace LucaApi
                     string daystr = before.Substring(2, 2);
                     string yearstr = before.Substring(4, 4);
                     BeforeRequest = new DateTime(Convert.ToInt32(yearstr), Convert.ToInt32(monthstr), Convert.ToInt32(daystr));
+                    log.LogInformation("Before date used for EDGAR query: " + BeforeRequest.ToShortDateString());
                 }
                 catch
                 {
@@ -126,6 +136,7 @@ namespace LucaApi
             //Get the Financial Statement
             try
             {
+                log.LogInformation("Downloading financial statement...");
                 FinancialStatement fs = await lm.DownloadFinancialStatementAsync(symbol, FilingRequest, BeforeRequest, ForceCalculationRequest);
                 string asJson = JsonConvert.SerializeObject(fs);
                 
