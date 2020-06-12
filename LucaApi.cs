@@ -21,6 +21,8 @@ namespace LucaApi
 {
     public class LucaApi
     {
+        private const int Version = 4;
+
         [FunctionName("GetFinancials")]
         public static async Task<HttpResponseMessage> GetFinancialsAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequest req, ILogger log)
         {
@@ -159,7 +161,7 @@ namespace LucaApi
         [FunctionName("GetVersion")]
         public static string GetLucaVersionAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequest req)
         {
-            return LucaManager.Version.ToString();
+            return Version.ToString();
         }
 
         [FunctionName("GetLastUpdateDateTime")]
