@@ -5,7 +5,7 @@
     <RootNamespace>Luca_Api</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Luca" Version="3.3.1" />
+    <PackageReference Include="Luca" Version="3.3.2" />
     <PackageReference Include="Microsoft.Azure.Storage.Blob" Version="11.1.7" />
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="3.0.3" />
   </ItemGroup>
