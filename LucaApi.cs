@@ -21,7 +21,7 @@ namespace LucaApi
 {
     public class LucaApi
     {
-        private const int Version = 5;
+        private const int Version = 6;
 
         [FunctionName("GetFinancials")]
         public static async Task<HttpResponseMessage> GetFinancialsAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequest req, ILogger log)
