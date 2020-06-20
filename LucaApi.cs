@@ -139,8 +139,8 @@ namespace LucaApi
             try
             {
                 log.LogInformation("Downloading financial statement...");
-                FinancialStatement fs = await lm.DownloadFinancialStatementAsync(symbol, FilingRequest, BeforeRequest, ForceCalculationRequest);
-                string asJson = JsonConvert.SerializeObject(fs);
+                LucaDataPackage ldp = await lm.DownloadLucaDataPackageAsync(symbol, FilingRequest, BeforeRequest, ForceCalculationRequest);
+                string asJson = JsonConvert.SerializeObject(ldp);
                 
                 HttpResponseMessage hrm = new HttpResponseMessage(HttpStatusCode.OK);
                 StringContent sc = new StringContent(asJson, System.Text.Encoding.UTF8, "application/json");
